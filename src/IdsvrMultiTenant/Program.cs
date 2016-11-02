@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using IdsvrMultiTenant.Services.IdSvr;
+using IdsvrMultiTenant.Services.MultiTenancy;
 using Microsoft.AspNetCore.Hosting;
 
 namespace IdsvrMultiTenant
@@ -16,6 +18,7 @@ namespace IdsvrMultiTenant
                 .UseContentRoot(Directory.GetCurrentDirectory())
                 .UseIISIntegration()
                 .UseStartup<Startup>()
+                .UseUrls("http://localhost:5050/")
                 .Build();
 
             host.Run();

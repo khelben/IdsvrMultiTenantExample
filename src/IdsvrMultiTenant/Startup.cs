@@ -1,17 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using IdentityServer4.Configuration;
+using IdentityServer4.Services.Default;
+using IdentityServer4.Stores;
+using IdentityServer4.Stores.InMemory;
+using IdsvrMultiTenant.Services;
+using IdsvrMultiTenant.Services.IdSvr;
+using IdsvrMultiTenant.Services.MultiTenancy;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using IdsvrMultiTenant.Data;
-using IdsvrMultiTenant.Models;
-using IdsvrMultiTenant.Services;
 
 namespace IdsvrMultiTenant
 {
@@ -39,19 +37,31 @@ namespace IdsvrMultiTenant
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            // Add framework services.
-            services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
-
-            services.AddIdentity<ApplicationUser, IdentityRole>()
-                .AddEntityFrameworkStores<ApplicationDbContext>()
-                .AddDefaultTokenProviders();
-
             services.AddMvc();
 
-            // Add application services.
-            services.AddTransient<IEmailSender, AuthMessageSender>();
-            services.AddTransient<ISmsSender, AuthMessageSender>();
+            // Saaskit multitenant applications
+            services.AddMultitenancy<IdsvrTenant, IdsvrTenantResolver>();
+            var identityServerBuilder = services.AddIdentityServer();
+
+            // we replace the default IdentityServerOptions with a custom one that returns tenant specific
+            // IdentityServerOptions
+            identityServerBuilder.Services.AddTransient<IdentityServerOptions, TenantSpecificIdentityServerOptions>();
+
+            // this is a required service by IdSvr4 - no need for a tenant specific version
+            identityServerBuilder.Services.AddSingleton<IPersistedGrantStore, InMemoryPersistedGrantStore>();
+
+            // clients are tenant specific
+            identityServerBuilder.Services.AddScoped<IClientStore, ClientStoreResolver>();
+
+            // scopes are not tenant specific, we can use 1 store for all tenants
+            identityServerBuilder.Services.AddSingleton<IScopeStore>(_ => new InMemoryScopeStore(Scopes.Get()));
+
+            // extraction of the IdSvr4 host example InMemoryLoginService so that we can resolve
+            // this per tenant
+            identityServerBuilder.Services.AddScoped<IUserLoginService, UserLoginResolver>();
+
+            // just a development cert
+            identityServerBuilder.SetTemporarySigningCredential();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -60,22 +70,21 @@ namespace IdsvrMultiTenant
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-                app.UseDatabaseErrorPage();
-                app.UseBrowserLink();
-            }
-            else
-            {
-                app.UseExceptionHandler("/Home/Error");
-            }
+            //if (env.IsDevelopment())
+            //{
+            //    app.UseDeveloperExceptionPage();
+            //    app.UseDatabaseErrorPage();
+            //    app.UseBrowserLink();
+            //}
+            //else
+            //{
+            //    app.UseExceptionHandler("/Home/Error");
+            //}
 
             app.UseStaticFiles();
 
-            app.UseIdentity();
-
-            // Add external authentication middleware below. To configure them please see http://go.microsoft.com/fwlink/?LinkID=532715
+            // multitenant aware Idsvr is mounted on "/tenants/<tenant>/" via this construction
+            app.UseMultiTenantIdSvr();
 
             app.UseMvc(routes =>
             {
