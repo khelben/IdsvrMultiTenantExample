@@ -16,8 +16,7 @@ namespace IdsvrMultiTenant.Services.IdSvr
 {
     public class ClientStoreResolver : IClientStore
     {
-        private IClientStore _clientStoreImplementation;
-
+        private readonly IClientStore _clientStoreImplementation;
 
         public ClientStoreResolver(IHttpContextAccessor httpContextAccessor)
         {

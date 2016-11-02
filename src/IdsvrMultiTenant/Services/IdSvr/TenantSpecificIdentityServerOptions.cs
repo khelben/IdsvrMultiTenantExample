@@ -18,7 +18,7 @@ namespace IdsvrMultiTenant.Services.IdSvr
             if(tenantContext == null)
                 throw new ArgumentNullException(nameof(tenantContext));
 
-            // now we can have tenantspecific IdentityServerOptions
+            // **** now we can have tenantspecific IdentityServerOptions
 
             // we scope the IdSvr cookie with the tenant name, to avoid potential conflicts
             AuthenticationOptions.AuthenticationScheme = "idsvr.tenants." + tenantContext.Tenant.Name;

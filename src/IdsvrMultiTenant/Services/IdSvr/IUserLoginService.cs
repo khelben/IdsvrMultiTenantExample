@@ -25,7 +25,7 @@ namespace IdsvrMultiTenant.Services.IdSvr
 
     public class UserLoginResolver : IUserLoginService
     {
-        private IUserLoginService _userLoginServiceImplementation;
+        private readonly IUserLoginService _userLoginServiceImplementation;
 
         public UserLoginResolver(IHttpContextAccessor httpContextAccessor)
         {
@@ -210,7 +210,6 @@ namespace IdsvrMultiTenant.Services.IdSvr
             _users.Add(user);
 
             return user;
-
         }
     }
 }
