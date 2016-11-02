@@ -174,10 +174,10 @@ Example (taken from [src/IdsvrMultiTenant/Services/IdSvr/ClientStoreResolver.cs]
 
 This example exists of:
 
-* a hosted multi tenant aware IdSvr4 in [src/IdSvrMultitenant](https://github.com/khelben/IdsvrMultiTenantExample/tree/master/src/IdsvrMultiTenant)
-* two client apps [src/FirstTenantClientApp](https://github.com/khelben/IdsvrMultiTenantExample/tree/master/src/FirstTenantClientApp) 
-and [src/SecondTenantClientApp](https://github.com/khelben/IdsvrMultiTenantExample/tree/master/src/SecondTenantClientApp)
-that connect to `/tenants/first/...` and `/tenants/second/...` resp.
+* a hosted multi tenant aware IdSvr4 in [src/IdSvrMultitenant](https://github.com/khelben/IdsvrMultiTenantExample/tree/master/src/IdsvrMultiTenant) (running on [http://localhost:5050](http://localhost:5050))
+* two client apps [src/FirstTenantClientApp](https://github.com/khelben/IdsvrMultiTenantExample/tree/master/src/FirstTenantClientApp) (running on [http://localhost:5000](http://localhost:5000))
+and [src/SecondTenantClientApp](https://github.com/khelben/IdsvrMultiTenantExample/tree/master/src/SecondTenantClientApp) (running on [http://localhost:5001](http://localhost:5001))
+that connect to `http://localhost:5050/tenants/first/...` and `http://localhost:5050/tenants/second/...` resp.
 
 In order to run, just execute `dotnet run` in the three folders.
 
